@@ -62,8 +62,10 @@ $(function () {
                     diff = 0;
                 }
                 prev = block.timeval;
-                term.write(block.buffer);
-                window.setTimeout(doLoop, diff);
+                window.setTimeout(function () {
+                    term.write(block.buffer);
+                    doLoop();
+                }, diff);
             };
             doLoop();
         };
