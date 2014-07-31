@@ -7,3 +7,6 @@
 [submodule "submodules/gif.js"]
 	path = submodules/gif.js
 	url = https://github.com/jnordberg/gif.js.git
+[submodule "submodules/bootstrap"]
+	path = submodules/bootstrap
+	url = https://github.com/twbs/bootstrap
