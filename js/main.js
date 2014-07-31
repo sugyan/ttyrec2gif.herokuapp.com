@@ -32,7 +32,8 @@ TtyrecordParser.prototype.uint32le = function (data, pos) {
 $(function () {
     term = new Terminal({
         cols: 80,
-        rows: 24
+        rows: 24,
+        cursorBlink: false
     });
     term.open($('#term').get(0));
     term.blur();
@@ -47,42 +48,48 @@ $(function () {
     $('#term').bind('dragenter', cancelEvent);
     $('#term').bind('dragover', cancelEvent);
     $('#term').bind('drop', function (event) {
+        term.focus();
+        var gif = new GIF({
+            workers: 10,
+            workerScript: '/js/lib/gif.js/gif.worker.js'
+        });
         var file = event.originalEvent.dataTransfer.files[0];
         var fileReader = new FileReader();
         fileReader.onload = function(event) {
             var parser = new TtyrecordParser(event.target.result);
             var prev;
             var doLoop = function () {
-                var diff;
                 var block = parser.sequence.shift();
-                if (! block) { return; }
+                if (! block) {
+                    gif.on('finished', function(blob) {
+                        window.open(URL.createObjectURL(blob));
+                    });
+                    gif.render();
+                    return;
+                }
 
+                var diff = 0;
                 if (prev) {
                     diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
-                } else {
-                    diff = 0;
                 }
                 prev = block.timeval;
-                // window.setTimeout(function () {
-                //     term.write(block.buffer);
-                //     doLoop();
-                // }, diff);
-                term.write(block.buffer);
-                html2canvas($('#term').children(0), {
-                    onrendered: function (canvas) {
-                        $('#images').append($('<img>').attr({
-                            src: canvas.toDataURL("image/png"),
-                            width: term.element.clientWidth * 0.2,
-                            height: term.element.clientHeight * 0.2
-                        }));
-                        doLoop();
-                    }
-                });
+
+                if (diff < 10.0) {
+                    term.write(block.buffer);
+                    doLoop();
+                } else {
+                    html2canvas($('#term').children(0), {
+                        onrendered: function (canvas) {
+                            gif.addFrame(canvas, { delay: diff });
+                            term.write(block.buffer);
+                            doLoop();
+                        }
+                    });
+                }
             };
             doLoop();
         };
         fileReader.readAsBinaryString(file);
         return cancelEvent(event);
     });
-
 });

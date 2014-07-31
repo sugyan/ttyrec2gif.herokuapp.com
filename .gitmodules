@@ -4,3 +4,6 @@
 [submodule "submodules/html2canvas"]
 	path = submodules/html2canvas
 	url = https://github.com/niklasvh/html2canvas.git
+[submodule "submodules/gif.js"]
+	path = submodules/gif.js
+	url = https://github.com/jnordberg/gif.js.git
