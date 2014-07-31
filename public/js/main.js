@@ -62,7 +62,8 @@ $(function () {
                 var block = parser.sequence.shift();
                 if (! block) {
                     gif.on('finished', function(blob) {
-                        window.open(URL.createObjectURL(blob));
+                        $('#term').remove();
+                        $(document.body).append($('<img>').attr('src', URL.createObjectURL(blob)));
                     });
                     gif.render();
                     return;
