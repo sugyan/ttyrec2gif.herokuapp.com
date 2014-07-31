@@ -1,1 +1,0 @@
-../../submodules/gif.js/dist
