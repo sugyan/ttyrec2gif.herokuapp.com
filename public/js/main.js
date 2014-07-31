@@ -36,60 +36,81 @@ $(function () {
         cursorBlink: false
     });
     term.open($('#term').get(0));
-    term.blur();
-    $('#term').css('height', term.element.clientHeight + 20);
+    term.write('$ ');
+    window.setTimeout(function () {
+        (function writePrompt (str) {
+            if (str.length > 0) {
+                term.write(str[0]);
+                window.setTimeout(function () {
+                    writePrompt(str.substr(1));
+                }, 70);
+            } else {
+                term.write('\r\n');
+                term.blur();
+            }
+        }('Drop ttyrecord file here!'));
+    }, 500);
 
-    // Drop
+    // Drop event
     var cancelEvent = function (event) {
         event.preventDefault();
         event.stopPropagation();
         return false;
     };
-    $('#term').bind('dragenter', cancelEvent);
-    $('#term').bind('dragover', cancelEvent);
-    $('#term').bind('drop', function (event) {
-        term.focus();
+    var onFileLoaded = function (event) {
+        var parser;
+        try {
+            parser = new TtyrecordParser(event.target.result);
+        } catch (e) {
+            term.writeln('\x1b[31mparse error!!\x1b[m');
+            return;
+        }
+        var prev;
         var gif = new GIF({
             workers: 10,
             workerScript: '/js/lib/gif.js/gif.worker.js'
         });
+        // clear and focus
+        term.write('\x1b[H\x1b[2J');
+        term.focus();
+        var doLoop = function () {
+            var block = parser.sequence.shift();
+            if (! block) {
+                gif.on('finished', function(blob) {
+                    $('#term').remove();
+                    $(document.body).append($('<img>').attr('src', URL.createObjectURL(blob)));
+                });
+                gif.render();
+                return;
+            }
+
+            var diff = 0;
+            if (prev) {
+                diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
+            }
+            prev = block.timeval;
+
+            if (diff < 10.0) {
+                term.write(block.buffer);
+                doLoop();
+            } else {
+                html2canvas($('#term').children(0), {
+                    onrendered: function (canvas) {
+                        gif.addFrame(canvas, { delay: diff });
+                        term.write(block.buffer);
+                        doLoop();
+                    }
+                });
+            }
+        };
+        doLoop();
+    };
+    $('#term').bind('dragenter', cancelEvent);
+    $('#term').bind('dragover', cancelEvent);
+    $('#term').bind('drop', function (event) {
         var file = event.originalEvent.dataTransfer.files[0];
         var fileReader = new FileReader();
-        fileReader.onload = function(event) {
-            var parser = new TtyrecordParser(event.target.result);
-            var prev;
-            var doLoop = function () {
-                var block = parser.sequence.shift();
-                if (! block) {
-                    gif.on('finished', function(blob) {
-                        $('#term').remove();
-                        $(document.body).append($('<img>').attr('src', URL.createObjectURL(blob)));
-                    });
-                    gif.render();
-                    return;
-                }
-
-                var diff = 0;
-                if (prev) {
-                    diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
-                }
-                prev = block.timeval;
-
-                if (diff < 10.0) {
-                    term.write(block.buffer);
-                    doLoop();
-                } else {
-                    html2canvas($('#term').children(0), {
-                        onrendered: function (canvas) {
-                            gif.addFrame(canvas, { delay: diff });
-                            term.write(block.buffer);
-                            doLoop();
-                        }
-                    });
-                }
-            };
-            doLoop();
-        };
+        fileReader.onload = onFileLoaded;
         fileReader.readAsBinaryString(file);
         return cancelEvent(event);
     });
