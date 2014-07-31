@@ -43,7 +43,7 @@ $(function () {
                 term.write(str[0]);
                 window.setTimeout(function () {
                     writePrompt(str.substr(1));
-                }, 70);
+                }, 50);
             } else {
                 term.write('\r\n');
                 term.blur();
@@ -91,13 +91,13 @@ $(function () {
             prev = block.timeval;
 
             if (diff < 10.0) {
-                term.write(block.buffer);
+                term.write(decodeURIComponent(escape(block.buffer)));
                 doLoop();
             } else {
                 html2canvas($('#term').children(0), {
                     onrendered: function (canvas) {
                         gif.addFrame(canvas, { delay: diff });
-                        term.write(block.buffer);
+                        term.write(decodeURIComponent(escape(block.buffer)));
                         doLoop();
                     }
                 });
