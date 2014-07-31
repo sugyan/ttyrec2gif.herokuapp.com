@@ -36,6 +36,7 @@ $(function () {
     });
     term.open($('#term').get(0));
     term.blur();
+    $('#term').css('height', term.element.clientHeight + 20);
 
     // Drop
     var cancelEvent = function (event) {
@@ -62,14 +63,26 @@ $(function () {
                     diff = 0;
                 }
                 prev = block.timeval;
-                window.setTimeout(function () {
-                    term.write(block.buffer);
-                    doLoop();
-                }, diff);
+                // window.setTimeout(function () {
+                //     term.write(block.buffer);
+                //     doLoop();
+                // }, diff);
+                term.write(block.buffer);
+                html2canvas($('#term').children(0), {
+                    onrendered: function (canvas) {
+                        $('#images').append($('<img>').attr({
+                            src: canvas.toDataURL("image/png"),
+                            width: term.element.clientWidth * 0.2,
+                            height: term.element.clientHeight * 0.2
+                        }));
+                        doLoop();
+                    }
+                });
             };
             doLoop();
         };
         fileReader.readAsBinaryString(file);
         return cancelEvent(event);
     });
+
 });

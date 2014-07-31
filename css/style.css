@@ -1,3 +1,7 @@
+#images img {
+    padding: 5px;
+}
+
 .terminal {
     float: left;
     border: #000 solid 5px;

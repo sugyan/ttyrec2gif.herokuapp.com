@@ -1,1 +1,1 @@
-../../submodules/term.js
+../../submodules/term.js/src/term.js
