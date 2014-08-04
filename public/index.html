@@ -2,7 +2,7 @@
 <html>
   <head>
     <title></title>
-    <link rel="stylesheet" href="/css/lib/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/css/style.css" type="text/css" />
     <script type="text/javascript" src="/js/lib/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="/js/lib/term.js"></script>
@@ -10,14 +10,24 @@
   </head>
   <body>
     <nav class="navbar navbar-default" role="navigation">
-      <div class="container-fluid">
+      <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="">ttygif</a>
         </div>
       </div>
     </nav>
-    <div class="row">
+    <div class="container">
+      <div class="row">
         <div id="term"></div>
+      </div>
+      <h3>drag <code>ttyrec</code> record file and drop to terminal.</h3>
+      <div class="row">
+        <button class="btn btn-default btn-lg">
+          <div id="sample" draggable="true">
+            <span class="glyphicon glyphicon-file">sample</span>
+          </div>
+        </button>
+      </div>
     </div>
   </body>
 </html>
