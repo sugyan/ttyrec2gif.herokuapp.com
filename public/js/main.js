@@ -40,6 +40,47 @@ $(function () {
         "width": term.element.clientWidth,
         "height": term.element.clientHeight
     });
+    (function writePrompt (str) {
+        if (str.length > 0) {
+            var s = str[0];
+            term.write(s);
+            window.setTimeout(function () {
+                writePrompt(str.substr(1));
+            }, s.match(/\w/) ? 30 : 0);
+        } else {
+            term.writeln('');
+        }
+    }('$ drag and drop your \x1b[32mttyrec\x1b[m record file into this terminal!'));
+
+    var ttyplay = function (data) {
+        var prev;
+        try {
+            var sequence = parseTtyrecoord(data);
+        } catch (e) {
+            term.writeln('\x1b[31mparse error!!\x1b[m');
+            return;
+        }
+        term.write('\x1b[H\x1b[2J');
+        term.focus();
+        var doLoop = function () {
+            var block = sequence.shift();
+            if (! block) {
+                return;
+            }
+
+            var diff = 0;
+            if (prev) {
+                diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
+            }
+            prev = block.timeval;
+
+            window.setTimeout(function () {
+                term.write(decodeURIComponent(escape(block.buffer)));
+                doLoop();
+            }, diff);
+        };
+        doLoop();
+    };
 
     $('#term').bind({
         "dragover": function (e) {
@@ -49,34 +90,17 @@ $(function () {
         "drop": function (e) {
             e.stopPropagation();
 
-            var data;
+            // read from dropped file
             if (e.originalEvent.dataTransfer.files.length > 0) {
+                var file = e.originalEvent.dataTransfer.files[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function (event) {
+                    ttyplay(event.target.result);
+                };
+                fileReader.readAsBinaryString(file);
             } else {
-                data = e.originalEvent.dataTransfer.getData('application/octet-stream');
+                ttyplay(e.originalEvent.dataTransfer.getData('ttyrec'));
             }
-
-            var prev;
-            var sequence = parseTtyrecoord(data);
-            term.write('\x1b[H\x1b[2J');
-            term.focus();
-            var doLoop = function () {
-                var block = sequence.shift();
-                if (! block) {
-                    return;
-                }
-
-                var diff = 0;
-                if (prev) {
-                    diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
-                }
-                prev = block.timeval;
-
-                window.setTimeout(function () {
-                    term.write(decodeURIComponent(escape(block.buffer)));
-                    doLoop();
-                }, diff);
-            };
-            doLoop();
 
             return false;
         }
@@ -84,7 +108,7 @@ $(function () {
 
 
     $('#sample').bind('dragstart', function (e) {
-        e.originalEvent.dataTransfer.setData('application/octet-stream', String.fromCharCode.apply(null, new Uint8Array([
+        e.originalEvent.dataTransfer.setData('ttyrec', String.fromCharCode.apply(null, new Uint8Array([
             0x1d, 0xa7, 0xdf, 0x53, 0x84, 0x5f, 0x0a, 0x00,  0x12, 0x00, 0x00, 0x00, 0x1b, 0x5b, 0x3f, 0x31,
             0x30, 0x33, 0x34, 0x68, 0x62, 0x61, 0x73, 0x68,  0x2d, 0x33, 0x2e, 0x32, 0x24, 0x20, 0x1e, 0xa7,
             0xdf, 0x53, 0x4b, 0x2e, 0x04, 0x00, 0x01, 0x00,  0x00, 0x00, 0x65, 0x1e, 0xa7, 0xdf, 0x53, 0x1c,
