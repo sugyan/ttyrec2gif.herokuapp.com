@@ -1,1 +1,0 @@
-../../../submodules/html2canvas/build/html2canvas.js
