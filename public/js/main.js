@@ -55,6 +55,7 @@
             },
             "drop": function (e) {
                 e.stopPropagation();
+                $('#sample').hide();
                 $('#term').unbind('drop');
 
                 self.started = true;
@@ -99,6 +100,7 @@
             return;
         }
         var prev;
+        var num = 1;
         self.term.write('\x1b[m');
         self.term.write('\x1b[H\x1b[2J');
         self.term.focus();
@@ -121,7 +123,11 @@
             } else {
                 html2canvas($('#term').get(0), {
                     onrendered: function (canvas) {
-                        $(document.body).append($(canvas).hide());
+                        $(document.body).append(
+                            $('<img>').addClass('capture').attr(
+                                'src', canvas.toDataURL()
+                            ).data('number', num++).hide()
+                        );
                         doLoop();
                     }
                 });
@@ -134,10 +140,18 @@
         var self = this;
         $('#term').hide();
 
-        var slider = $('<input>').attr('type', 'text');
-        $('#editor #image').append($($('canvas').get(0)).show());
-        $('#editor').append(slider);
-        slider.slider();
+        $('#slider').slider({
+            min: 1,
+            max: $('img.capture').length,
+            value: 1
+        }).bind('slide', function () {
+            var val = $(this).slider('getValue');
+            var image = $('img.capture').filter(function () {
+                return $(this).data('number') === val;
+            });
+            $('#image').empty().append($(image).clone().css('width', '100%').show());
+        }).trigger('slide');
+        $('#editor').show();
     };
 
     $(function () {

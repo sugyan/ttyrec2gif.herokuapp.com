@@ -22,16 +22,23 @@
     <div class="container">
       <div class="row">
         <div id="term"></div>
-        <div id="editor">
-          <div id="image"></div>
-        </div>
       </div>
       <div class="row">
-        <button class="btn btn-default btn-lg">
-          <div id="sample" draggable="true">
-            <span class="glyphicon glyphicon-file">sample</span>
-          </div>
+        <button id="sample" class="btn btn-default btn-lg" draggable="true">
+          <span class="glyphicon glyphicon-file">sample</span>
         </button>
+      </div>
+      <div id="editor">
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div id="image" class="col-md-8"></div>
+          <div class="col-md-2"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <input id="slider" type="text" />
+          </div>
+        </div>
       </div>
     </div>
   </body>

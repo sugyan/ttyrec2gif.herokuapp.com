@@ -17,3 +17,11 @@
     color: #000;
     background: #f0f0f0;
 }
+
+#editor {
+    display: none;
+}
+
+#editor .slider {
+    width: 100%;
+}
