@@ -48,7 +48,7 @@
             "width": term.element.clientWidth,
             "height": term.element.clientHeight
         });
-        $('#term').bind({
+        $('#term').on({
             "dragover": function (e) {
                 e.preventDefault();
                 return false;
@@ -92,9 +92,11 @@
         }('$ drag and drop your \x1b[32mttyrec\x1b[m record file into this terminal!'));
 
         // setting
-        $('#setting input').change(function () {
+        var updateTerminal = function () {
             var cols = Number($('#setting').find('input[name="cols"]').val()) || 1;
             var rows = Number($('#setting').find('input[name="rows"]').val()) || 1;
+            var color = $('#setting').find('input[name="color"]').val();
+            var bcolor = $('#setting').find('input[name="background-color"]').val();
             if (cols !== term.cols || rows !== term.rows) {
                 term.resize(cols, rows);
                 $('#term').css({
@@ -102,7 +104,12 @@
                     "height": term.element.clientHeight
                 });
             }
-        });
+            $('.terminal').css('color', color);
+            $('.terminal').css('background-color', bcolor);
+            $('.terminal').css('border', bcolor + ' solid 5px');
+        };
+        $('#setting input').change(updateTerminal);
+        $('input[name="color"], input[name="background-color"]').colorpicker().on('changeColor', updateTerminal);
     };
 
     TtyGif.prototype.playAndCapture = function (data) {
@@ -120,7 +127,7 @@
         var prev;
         var num = 1;
         var capture = function (next) {
-            html2canvas($('#term').get(0), {
+            html2canvas($('#term .terminal').get(0), {
                 onrendered: function (canvas) {
                     $(document.body).append(
                         $(canvas).addClass('capture').data('number', num++).hide()
@@ -163,7 +170,7 @@
             min: 1,
             max: $('canvas.capture').length,
             value: 1
-        }).bind('slide', function () {
+        }).on('slide', function () {
             var val = $(this).slider('getValue');
             var image = $('canvas.capture').filter(function () {
                 return $(this).data('number') === val;
@@ -181,7 +188,7 @@
     $(function () {
         var ttygif = new TtyGif();
 
-        $('#sample').bind('dragstart', function (e) {
+        $('#sample').on('dragstart', function (e) {
             e.originalEvent.dataTransfer.setData('ttyrec', String.fromCharCode.apply(null, new Uint8Array([
                 0xc8, 0x5d, 0xe4, 0x53, 0xf3, 0x6e, 0x0c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x1b, 0x5b, 0x3f, 0x31,
                 0x30, 0x33, 0x34, 0x68, 0xc8, 0x5d, 0xe4, 0x53, 0x18, 0x6f, 0x0c, 0x00, 0x0a, 0x00, 0x00, 0x00,

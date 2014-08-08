@@ -13,3 +13,6 @@
 [submodule "submodules/bootstrap-slider"]
 	path = submodules/bootstrap-slider
 	url = https://github.com/seiyria/bootstrap-slider.git
+[submodule "submodules/bootstrap-colorpicker"]
+	path = submodules/bootstrap-colorpicker
+	url = https://github.com/mjolnic/bootstrap-colorpicker.git
