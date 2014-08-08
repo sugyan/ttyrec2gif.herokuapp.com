@@ -93,9 +93,9 @@
 
         // setting
         $('#setting input').change(function () {
-            var cols = $('#setting').find('input[name="cols"]').val();
-            var rows = $('#setting').find('input[name="rows"]').val();
-            if (cols != term.cols || rows != term.rows) {
+            var cols = Number($('#setting').find('input[name="cols"]').val()) || 1;
+            var rows = Number($('#setting').find('input[name="rows"]').val()) || 1;
+            if (cols !== term.cols || rows !== term.rows) {
                 term.resize(cols, rows);
                 $('#term').css({
                     "width": term.element.clientWidth,
