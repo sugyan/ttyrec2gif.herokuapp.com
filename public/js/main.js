@@ -56,6 +56,7 @@
             "drop": function (e) {
                 e.stopPropagation();
                 $('#sample').hide();
+                $('#setting').hide();
                 $('#term').unbind('drop');
 
                 self.started = true;
@@ -89,6 +90,19 @@
                 term.writeln('');
             }
         }('$ drag and drop your \x1b[32mttyrec\x1b[m record file into this terminal!'));
+
+        // setting
+        $('#setting input').change(function () {
+            var cols = $('#setting').find('input[name="cols"]').val();
+            var rows = $('#setting').find('input[name="rows"]').val();
+            if (cols != term.cols || rows != term.rows) {
+                term.resize(cols, rows);
+                $('#term').css({
+                    "width": term.element.clientWidth,
+                    "height": term.element.clientHeight
+                });
+            }
+        });
     };
 
     TtyGif.prototype.playAndCapture = function (data) {

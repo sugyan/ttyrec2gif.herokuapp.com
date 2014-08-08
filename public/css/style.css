@@ -4,6 +4,10 @@
     margin-bottom: 20px;
 }
 
+#sample {
+    margin: 10px;
+}
+
 .terminal {
     float: left;
     border: #000 solid 5px;
