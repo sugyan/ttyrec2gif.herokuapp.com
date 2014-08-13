@@ -95,18 +95,22 @@
         var updateTerminal = function () {
             var cols = Number($('#setting').find('input[name="cols"]').val()) || 1;
             var rows = Number($('#setting').find('input[name="rows"]').val()) || 1;
-            var color = $('#setting').find('input[name="color"]').val();
-            var bcolor = $('#setting').find('input[name="background-color"]').val();
+            var color   = $('#setting').find('input[name="color"]').val();
+            var bcolor  = $('#setting').find('input[name="background-color"]').val();
+            var ffamily = $('#setting').find('input[name="font-family"]').val();
+            var fsize   = $('#setting').find('input[name="font-size"]').val();
             if (cols !== term.cols || rows !== term.rows) {
                 term.resize(cols, rows);
-                $('#term').css({
-                    "width": term.element.clientWidth,
-                    "height": term.element.clientHeight
-                });
             }
             $('.terminal').css('color', color);
             $('.terminal').css('background-color', bcolor);
             $('.terminal').css('border', bcolor + ' solid 5px');
+            $('.terminal').css('font-family', ffamily);
+            $('.terminal').css('font-size', fsize + 'px');
+            $('#term').css({
+                "width": term.element.clientWidth,
+                "height": term.element.clientHeight
+            });
         };
         $('#setting input').change(updateTerminal);
         $('input[name="color"], input[name="background-color"]').colorpicker().on('changeColor', updateTerminal);
