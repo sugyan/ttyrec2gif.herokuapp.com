@@ -1,4 +1,45 @@
 (function () {
+    var parseQueryString = function(qs, sep, eq) {
+        sep = sep || '&';
+        eq = eq || '=';
+        var obj = {};
+
+        if (typeof qs !== 'string' || qs.length === 0) {
+            return obj;
+        }
+
+        var regexp = /\+/g;
+        qs = qs.split(sep);
+
+        var len = qs.length;
+        for (var i = 0; i < len; ++i) {
+            var x = qs[i].replace(regexp, '%20'),
+                idx = x.indexOf(eq),
+                kstr, vstr, k, v;
+
+            if (idx >= 0) {
+                kstr = x.substr(0, idx);
+                vstr = x.substr(idx + 1);
+            } else {
+                kstr = x;
+                vstr = '';
+            }
+
+            k = decodeURIComponent(kstr);
+            v = decodeURIComponent(vstr);
+
+            if (!obj.hasOwnProperty(k)) {
+                obj[k] = v;
+            } else if (Array.isArray(obj[k])) {
+                obj[k].push(v);
+            } else {
+                obj[k] = [obj[k], v];
+            }
+        }
+
+        return obj;
+    };
+
     var TtyGif = TtyGif || {};
 
     TtyGif = function () {
@@ -114,6 +155,10 @@
         };
         $('#setting input').change(updateTerminal);
         $('input[name="color"], input[name="background-color"]').colorpicker().on('changeColor', updateTerminal);
+        $.each(parseQueryString(window.location.search.slice(1)), function (key, value) {
+            $('#setting').find('input[name="' + key + '"]').val(value);
+            updateTerminal();
+        });
     };
 
     TtyGif.prototype.playAndCapture = function (data) {
