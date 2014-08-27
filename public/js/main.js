@@ -246,6 +246,7 @@
         $('#editor').show();
 
         $('#generate').click(function () {
+            var win = window.open();
             var gif = new GIF({
                 workers: 10,
                 workerScript: '/js/lib/gif.js/gif.worker.js'
@@ -258,7 +259,7 @@
                 }
             });
             gif.on('finished', function(blob) {
-                window.open(URL.createObjectURL(blob));
+                win.location = URL.createObjectURL(blob);
             });
             gif.render();
         });
