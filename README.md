@@ -1,2 +1,2 @@
-ttyrec2gif.js
-=============
+ttyrec2gif.herokuapp.com
+========================
