@@ -80,6 +80,8 @@
     TtyGif.prototype.init = function () {
         var self = this;
         self.data = [];
+        self.cols = 80;
+        self.rows = 24;
         var term = this.term = new Terminal({
             cols: 80,
             rows: 24,
@@ -102,6 +104,12 @@
                 $('#term').unbind('drop');
 
                 self.started = true;
+                // resize
+                term.resize(self.cols, self.rows);
+                $('#term').css({
+                    "width": term.element.clientWidth,
+                    "height": term.element.clientHeight
+                });
                 // read from dropped file
                 if (e.originalEvent.dataTransfer.files.length > 0) {
                     var file = e.originalEvent.dataTransfer.files[0];
@@ -141,8 +149,10 @@
             var bcolor  = $('#setting').find('input[name="background-color"]').val();
             var ffamily = $('#setting').find('input[name="font-family"]').val();
             var fsize   = $('#setting').find('input[name="font-size"]').val();
+            var speed   = $('#setting').find('input[name="speed"]').val();
             if (cols !== term.cols || rows !== term.rows) {
-                term.resize(cols, rows);
+                self.cols = cols;
+                self.rows = rows;
             }
             $('.terminal').css('color', color);
             $('.terminal').css('background-color', bcolor);
@@ -153,6 +163,7 @@
                 "width": term.element.clientWidth,
                 "height": term.element.clientHeight
             });
+            self.speed = speed;
         };
         $('#setting input').change(updateTerminal);
         $('input[name="color"], input[name="background-color"]').colorpicker().on('changeColor', updateTerminal);
@@ -196,6 +207,7 @@
             var diff = 0;
             if (prev) {
                 diff = ((block.timeval.sec - prev.sec) * 1000000 + (block.timeval.usec - prev.usec)) / 1000;
+                diff /= self.speed;
             }
             prev = block.timeval;
 
