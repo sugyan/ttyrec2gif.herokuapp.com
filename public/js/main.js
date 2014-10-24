@@ -191,7 +191,7 @@
             html2canvas($('#term .terminal').get(0), {
                 onrendered: function (canvas) {
                     $(document.body).append(
-                        $(canvas).addClass('capture').data('number', num++).hide()
+                        $(canvas).addClass('capture').hide()
                     );
                     next.call(self);
                 }
@@ -233,6 +233,15 @@
 
     TtyGif.prototype.onCaptureFinished = function () {
         var self = this;
+        var draw = function (n) {
+            var image = $('canvas.capture').get(n - 1);
+            var canvas = $('<canvas>');
+            var c = canvas.get(0);
+            c.width = image.width;
+            c.height = image.height;
+            c.getContext('2d').drawImage(image, 0, 0);
+            $('#image').empty().append(canvas.css('width', '100%'));
+        };
         $('#term').hide();
 
         $('#slider').slider({
@@ -241,20 +250,28 @@
             value: 1
         }).on('slide', function () {
             var val = $(this).slider('getValue');
-            (function () {
-                var image = $('canvas.capture').filter(function () {
-                    return $(this).data('number') === val;
-                }).get(0);
-                var canvas = $('<canvas>');
-                var c = canvas.get(0);
-                c.width = image.width;
-                c.height = image.height;
-                c.getContext('2d').drawImage(image, 0, 0);
-                $('#image').empty().append(canvas.css('width', '100%'));
-            }());
+            draw(val);
             $('#editor #frame-number').text(val + ' / ' + self.data.length);
             $('#editor #delay').val(self.data[val - 1].delay);
         }).trigger('slide');
+        $('#delete-frame').click(function () {
+            var slider = $('#slider');
+            var val    = slider.slider('getValue');
+            var image  = $('canvas.capture').get(val - 1);
+            $(image).remove();
+            self.data.splice(val - 1, 1);
+            if (val > self.data.length) {
+                val--;
+            }
+            draw(val);
+            slider.slider({
+                min: 1,
+                max: $('canvas.capture').length,
+                value: val
+            });
+            $('#editor #frame-number').text(val + ' / ' + self.data.length);
+            return false;
+        });
         $('#editor').show();
 
         $('#generate').click(function () {
